@@ -41,6 +41,7 @@ int testCase_4() {
 	bool nullBit = false;
 
 	while (filter->getNextTuple(data) != QE_EOF) {
+cout<<"in while loop"<<endl;
 		int offset = 0;
 
 		// Null indicators should be placed in the beginning.
@@ -79,7 +80,8 @@ int testCase_4() {
 		memset(data, 0, bufSize);
 		actualResultCnt++;
 	}
-
+cout<<"expected: "<<expectedResultCnt<<endl;
+cout<<"actual: "<<actualResultCnt<<endl;
 	if (expectedResultCnt != actualResultCnt) {
 		cerr << "***** The number of returned tuple is not correct. *****" << endl;
 		rc = fail;

@@ -2,6 +2,9 @@
 #define _qe_h_
 
 #include <vector>
+#include <cstdio>
+#include <string>
+#include <iostream>
 
 #include "../rbf/rbfm.h"
 #include "../rm/rm.h"
@@ -198,9 +201,19 @@ class Filter : public Iterator {
         );
         ~Filter(){};
 
-        RC getNextTuple(void *data) {return QE_EOF;};
+        RC getNextTuple(void *data);
         // For attribute in vector<Attribute>, name it as rel.attr
-        void getAttributes(vector<Attribute> &attrs) const{};
+        void getAttributes(vector<Attribute> &attrs) const;
+
+    private:
+        Condition filterCondition;
+        Iterator *filterInput;
+
+        bool checkScanCondition(int intToCompare, Condition &condition);
+        bool checkScanCondition(float realToCompare, Condition &condition);
+        bool checkScanCondition(char* varCharToCompare, Condition &condition);
+        void splitLeftAttribute(const Condition &condition, string &table, string &attribute);
+        void splitRightAttribute(const Condition &condition, string &table, string &attribute);
 };
 
 
@@ -208,12 +221,17 @@ class Project : public Iterator {
     // Projection operator
     public:
         Project(Iterator *input,                    // Iterator of input R
-              const vector<string> &attrNames){};   // vector containing attribute names
+              const vector<string> &attrNames);   // vector containing attribute names
         ~Project(){};
 
-        RC getNextTuple(void *data) {return QE_EOF;};
+        RC getNextTuple(void *data);
         // For attribute in vector<Attribute>, name it as rel.attr
-        void getAttributes(vector<Attribute> &attrs) const{};
+        void getAttributes(vector<Attribute> &attrs) const;
+
+    private:
+        Iterator *projectIter;
+        Iterator *tempIter;
+        vector<string> projectAttrs;
 };
 
 class BNLJoin : public Iterator {
@@ -239,12 +257,27 @@ class INLJoin : public Iterator {
         INLJoin(Iterator *leftIn,           // Iterator of input R
                IndexScan *rightIn,          // IndexScan Iterator of input S
                const Condition &condition   // Join condition
-        ){};
+        );
         ~INLJoin(){};
 
-        RC getNextTuple(void *data){return QE_EOF;};
+        RC getNextTuple(void *data);
         // For attribute in vector<Attribute>, name it as rel.attr
-        void getAttributes(vector<Attribute> &attrs) const{};
+        void getAttributes(vector<Attribute> &attrs) const;
+
+    private:
+        int getNullIndicatorSize(vector<Attribute> &attr);
+        int getNullIndicatorSize(int leftAttributeSize, int rightAttributeSize);
+        bool returnValidTuple(int left, int right, Condition condition);
+        bool returnValidTuple(float left, float right, Condition condition);
+        bool returnValidTuple(void* left, void* right, Condition condition);
+        int getRecordLength(vector<Attribute> attr, void* data);
+
+        Iterator *leftIter;
+        Iterator *rightIter;
+        Iterator *tempIter;
+        Condition joinCondition;
+        bool start;
+        void* leftReturn;
 };
 
 // Optional for everyone. 10 extra-credit points

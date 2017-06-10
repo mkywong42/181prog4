@@ -94,7 +94,7 @@ RC testCase_3() {
 		memset(data, 0, bufSize);
 		actualResultCnt++;
 	}
-
+	
 	if (expectedResultCnt != actualResultCnt) {
 		cerr << "***** The number of returned tuple is not correct. *****" << endl;
 		rc = fail;
